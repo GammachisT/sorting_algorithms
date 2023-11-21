@@ -1,64 +1,48 @@
 #include "sort.h"
 
 /**
- * swap - swaps two nodes
- * @head: head of the list
- * @node1: first node to sort
- * @node2: second node to sort
+ * swap_nodes - Swap two nodes in a listint_t doubly-linked list.
+ * @h: A pointer to the head of the doubly-linked list.
+ * @n1: A pointer to the first node to swap.
+ * @n2: The second node to swap.
  */
-void swap(listint_t **head, listint_t *node1, listint_t *node2)
+void swap_nodes(listint_t **h, listint_t **n1, listint_t *n2)
 {
-	listint_t *prev, *next;
-
-	prev = node1->prev;
-	next = node2->next;
-
-	if (prev != NULL)
-		prev->next = node2;
+	(*n1)->next = n2->next;
+	if (n2->next != NULL)
+		n2->next->prev = *n1;
+	n2->prev = (*n1)->prev;
+	n2->next = *n1;
+	if ((*n1)->prev != NULL)
+		(*n1)->prev->next = n2;
 	else
-		*head = node2;
-	node1->prev = node2;
-	node1->next = next;
-	node2->prev = prev;
-	node2->next = node1;
-	if (next)
-		next->prev = node1;
+		*h = n2;
+	(*n1)->prev = n2;
+	*n1 = n2->prev;
 }
-/**
- * cocktail_sort_list - sorts a list using the cocktail sort algorithm
- * @list: list to sort
- */
-void cocktail_sort_list(listint_t **list)
-{
-	listint_t *head;
-	int flag = 0;
 
-	if (!list || !*list || !(*list)->next)
+/**
+ * insertion_sort_list - Sorts a doubly linked list of integers
+ *                       using the insertion sort algorithm.
+ * @list: A pointer to the head of a doubly-linked list of integers.
+ *
+ * Description: Prints the list after each swap.
+ */
+void insertion_sort_list(listint_t **list)
+{
+	listint_t *iter, *insert, *tmp;
+
+	if (list == NULL || *list == NULL || (*list)->next == NULL)
 		return;
 
-	do {
-		for (head = *list; head->next != NULL; head = head->next)
+	for (iter = (*list)->next; iter != NULL; iter = tmp)
+	{
+		tmp = iter->next;
+		insert = iter->prev;
+		while (insert != NULL && iter->n < insert->n)
 		{
-			if (head->n > head->next->n)
-			{
-				swap(list, head, head->next);
-				print_list(*list);
-				flag = 1;
-				head = head->prev;
-			}
+			swap_nodes(list, &insert, iter);
+			print_list((const listint_t *)*list);
 		}
-		if (flag == 0)
-			break;
-		flag = 0;
-		for (; head->prev != NULL; head = head->prev)
-		{
-			if (head->n < head->prev->n)
-			{
-				swap(list, head->prev, head);
-				print_list(*list);
-				flag = 1;
-				head = head->next;
-			}
-		}
-	} while (flag == 1);
+	}
 }
